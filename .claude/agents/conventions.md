@@ -104,6 +104,25 @@ catch (err: unknown) {
 { "success": false, "message": "Task not found", "code": "TASK_NOT_FOUND" }
 ```
 
+**Prisma P2025 (record not found)** — `update` and `delete` throw `PrismaClientKnownRequestError` with `code === 'P2025'` when the record doesn't exist. Convert to a 404 `AppError` so the client never receives a 500 for this case:
+```typescript
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+
+catch (err: unknown) {
+  if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') {
+    next(new AppError('Task not found', 404, 'TASK_NOT_FOUND'));
+    return;
+  }
+  next(err);
+}
+```
+
+**validateBody middleware** — `api/src/middleware/validate.ts` — wraps any Zod schema into an Express `RequestHandler`. Failed validation calls `next(new AppError(..., 422, 'VALIDATION_ERROR'))`; success overwrites `req.body` with the parsed value. Use it in the router, not the controller:
+```typescript
+import { validateBody } from '../middleware/validate.js';
+router.post('/', validateBody(createTaskSchema), createHandler);
+```
+
 ---
 
 ## API Conventions
