@@ -102,6 +102,6 @@ Options: `prisma/seed.ts` via `prisma db seed`, dedicated `npm run seed` script,
 ### Prisma client singleton location
 **Question**: Confirm `api/src/lib/db.ts` as the single export point for the Prisma client.
 
-**Decision**: —  
-**Decided by**: —  
-**Date**: —
+**Decision**: `api/src/lib/db.ts` — single shared `PrismaClient` instance, exported as default. Import as `import db from '../lib/db.js'`.  
+**Decided by**: Tasks route implementation session.  
+**Date**: 2026-05-15.
